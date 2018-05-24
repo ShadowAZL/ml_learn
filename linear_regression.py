@@ -12,24 +12,23 @@ class LinearRegression(object):
         self.max_iter = max_iter
 
     def fit(self, x, y):
-        self.x = x
+        self.x = x.reshape(y.shape[0], -1)
         self.y = y
-        self.w, self.b = np.random.normal(1, 0.1), np.random.normal(1, 0.1)
+
+        self.w = np.random.normal(1, 0.1, (x.shape[1],))
+        self.b = np.random.normal(1, 0.1)
         loss = []
         for _ in range(self.max_iter):
             dw, db = self.gradient(self.w, self.b)
             self.w = self.w - self.alpha * dw
             self.b = self.b - self.alpha * db
-            loss.append(np.mean((self.f(self.x) - self.y)**2))
+            loss.append(np.mean((self.predict(self.x) - self.y)**2))
         return loss
 
-    def f(self, x):
-        return self.w * x + self.b
-
     def predict(self, x):
-        return self.f(x)
+        return x.dot(self.w) + self.b
 
     def gradient(self, w, b):
-        dw = np.mean(self.x * (w * self.x + b - self.y))
-        db = np.mean(w * self.x + b - self.y)
+        dw = self.x.T.dot(self.x.dot(w) + b - self.y) / self.y.shape[0]
+        db = np.mean(self.x.dot(w) + b - self.y)
         return dw, db
