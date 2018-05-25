@@ -1,13 +1,12 @@
 import numpy as np
 
 
-class LinearRegression(object):
+def sigmoid(x):
+    return 1.0 / (1 + np.exp(-x))
 
+
+class LogisticRegression(object):
     def __init__(self, alpha, max_iter):
-        """
-        :param alpha: learning rate 
-        :param max_iter: max num of iteration
-        """
         self.alpha = alpha
         self.max_iter = max_iter
 
@@ -22,7 +21,9 @@ class LinearRegression(object):
         for _ in range(self.max_iter):
             dw = self.gradient(self.w)
             self.w = self.w - self.alpha * dw
-            loss.append(np.mean((self._predict(self.x) - self.y)**2))
+
+            h = self._predict(self.x)
+            loss.append(-np.mean(self.y * np.log(h) + (1 - self.y) * np.log(1 - h)))
         return loss
 
     def predict(self, x):
@@ -32,7 +33,7 @@ class LinearRegression(object):
         return self._predict(x)
 
     def _predict(self, x):
-        return x.dot(self.w)
+        return sigmoid(x.dot(self.w))
 
     def gradient(self, w):
         err = self._predict(self.x) - self.y
