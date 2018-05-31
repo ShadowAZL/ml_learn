@@ -19,10 +19,12 @@ class LinearRegression(object):
 
         self.w = np.random.normal(1, 0.1, (self.x.shape[1],))
         loss = []
+        self.w_list = []
         for _ in range(self.max_iter):
             dw = self.gradient(self.w)
             self.w = self.w - self.alpha * dw
             loss.append(np.mean((self._predict(self.x) - self.y)**2))
+            self.w_list.append(self.w)
         return loss
 
     def predict(self, x):
