@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.io import loadmat
 
 import random
-from logistic_regression import LogisticRegression
+from logistic_regression import MutiLogisticRegression
 
 
 def plot_data():
@@ -39,34 +39,27 @@ def fitting():
 
     alpha = 5
     max_iter = 100
-    lamb = 0.5
-    models = []
+    lamb = 1
 
-    _, axes = plt.subplots(5, 2, figsize=(6, 7))
-    axes = np.ravel(axes)
+    ys = []
+    for i in range(1, 11):
+        ys.append(np.array([1 if v == i else 0 for v in y]).reshape(-1, 1))
+    ys.insert(0, ys[-1])
+    ys = np.hstack(ys[:-1])
 
-    for i in range(10):
-
-        model = LogisticRegression(alpha, max_iter, lamb)
-        if i == 0:
-            yi = np.array([1 if d == 10 else 0 for d in y])
-        else:
-            yi = np.array([1 if d == i else 0 for d in y])
-        loss, _ = model.fit(x, yi)
-        models.append(model)
-
-        axes[i].plot(np.arange(1, max_iter+1), loss)
-        axes[i].set_title('%d' % i)
-
-    p = []
-    for i in range(10):
-        p.append(models[i].predict(x).reshape(-1, 1))
-    p = np.hstack(p)
+    model = MutiLogisticRegression(10, alpha, max_iter, lamb)
+    loss, _ = model.fit(x, ys)
+    p = model.predict(x)
     p = np.argmax(p, axis=1)
 
-    acu = sum([1.0 if vp == vy or (vp == 0 and vy == 10) else 0 for vp, vy in zip(p, y)])
-    print('Accuracy %.4f' % (acu/5000.0))
+    acc = sum([1.0 if vp == vy or (vp == 0 and vy == 10) else 0 for vp, vy in zip(p, y)])
+    print('Accuracy %.4f' % (acc/5000.0))
 
+    _, axes = plt.subplots(5, 2, figsize=(6, 7))
+    loss = np.array(loss)
+    for i, ax in enumerate(np.ravel(axes)):
+        ax.plot(np.arange(1, max_iter+1), loss[:, i])
+        ax.set_title(str(i))
     plt.subplots_adjust(hspace=0.9)
     plt.show()
 
